@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const stats = [
   { label: "Total Sessions", value: "0" },
   { label: "Cards Detected", value: "0" },
@@ -20,7 +22,7 @@ export default function Home() {
           </div>
           <div className="mt-5 inline-flex w-fit items-center gap-2 rounded-md border border-[#b7c3cc] bg-white px-3 py-2 text-sm font-medium text-[#36454f] sm:mt-0">
             <span className="h-2.5 w-2.5 rounded-full bg-[#2f9e44]" />
-            Backend pending
+            Simulator mode
           </div>
         </header>
 
@@ -40,9 +42,17 @@ export default function Home() {
 
         <section className="grid flex-1 gap-4 lg:grid-cols-[1.5fr_1fr]">
           <div className="rounded-lg border border-[#d8dde3] bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#17202a]">
-              Assessment Sessions
-            </h2>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-lg font-semibold text-[#17202a]">
+                Assessment Sessions
+              </h2>
+              <Link
+                href="/sessions"
+                className="inline-flex w-fit items-center justify-center rounded-md bg-[#2f6f73] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#255b5f] focus:outline-none focus:ring-2 focus:ring-[#2f6f73] focus:ring-offset-2"
+              >
+                Manage Sessions
+              </Link>
+            </div>
             <div className="mt-6 flex min-h-56 items-center justify-center rounded-md border border-dashed border-[#b7c3cc] bg-[#fafbfc] text-sm font-medium text-[#6b7780]">
               No sessions yet
             </div>
