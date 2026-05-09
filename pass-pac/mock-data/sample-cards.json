@@ -1,0 +1,8 @@
+[
+  {
+    "uid": "04:A1:B2:C3:D4:E5:80",
+    "type": "MIFARE Classic",
+    "source": "simulator",
+    "risk": "unknown"
+  }
+]
