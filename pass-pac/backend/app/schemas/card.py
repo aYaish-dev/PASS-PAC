@@ -7,6 +7,10 @@ from pydantic import BaseModel, ConfigDict, Field
 class SimulatedScanRequest(BaseModel):
     technology: str | None = Field(default=None, max_length=50)
     card_type: str | None = Field(default=None, max_length=120)
+    source: str | None = Field(default=None, max_length=80)
+    dataset: str | None = Field(default=None, max_length=120)
+    file_type: str | None = Field(default=None, max_length=20)
+    uid: str | None = Field(default=None, max_length=120)
 
 
 class CardResponse(BaseModel):

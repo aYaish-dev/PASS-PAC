@@ -17,6 +17,9 @@ venv/
 # Local output
 reports/*
 !reports/.gitkeep
+mock-data/flipper-imported-cards.json
+mock-data/flipper-imported-*.json
+!mock-data/flipper-imported-cards.example.json
 
 # OS and editor
 .DS_Store

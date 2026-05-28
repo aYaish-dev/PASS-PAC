@@ -10,6 +10,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.detected_card import DetectedCard
+    from app.models.finding import Finding
 
 
 class ScanSession(Base):
@@ -35,6 +36,10 @@ class ScanSession(Base):
         onupdate=func.now(),
     )
     detected_cards: Mapped[list[DetectedCard]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    findings: Mapped[list[Finding]] = relationship(
         back_populates="session",
         cascade="all, delete-orphan",
     )

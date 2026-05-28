@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.card import CardResponse, SimulatedScanRequest
+from app.schemas.finding import FindingResponse
 from app.schemas.session import SessionCreate, SessionResponse, SessionUpdate
 from app.services.card_service import list_session_cards, run_simulated_scan
+from app.services.finding_service import list_session_findings
 from app.services.session_service import (
     create_session,
     delete_session,
@@ -82,6 +84,14 @@ def read_session_cards(
     db: Session = Depends(get_db),
 ) -> list[CardResponse]:
     return list_session_cards(db, session_id)
+
+
+@router.get("/{session_id}/findings", response_model=list[FindingResponse])
+def read_session_findings(
+    session_id: int,
+    db: Session = Depends(get_db),
+) -> list[FindingResponse]:
+    return list_session_findings(db, session_id)
 
 
 @router.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -25,6 +25,7 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     from app.models.detected_card import DetectedCard  # noqa: F401
+    from app.models.finding import Finding  # noqa: F401
     from app.models.scan_session import ScanSession  # noqa: F401
 
     for attempt in range(1, 11):

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.models.finding import Finding
     from app.models.scan_session import ScanSession
 
 
@@ -36,3 +37,7 @@ class DetectedCard(Base):
     )
 
     session: Mapped[ScanSession] = relationship(back_populates="detected_cards")
+    findings: Mapped[list[Finding]] = relationship(
+        back_populates="card",
+        cascade="all, delete-orphan",
+    )

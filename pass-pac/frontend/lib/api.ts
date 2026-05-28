@@ -25,6 +25,18 @@ export type DetectedCard = {
   created_at: string;
 };
 
+export type Finding = {
+  id: number;
+  session_id: number;
+  card_id: number;
+  title: string;
+  description: string;
+  risk_level: string;
+  recommendation: string;
+  evidence_json: Record<string, unknown>;
+  created_at: string;
+};
+
 export type SessionCreatePayload = {
   session_name: string;
   description?: string | null;
@@ -35,6 +47,10 @@ export type SessionCreatePayload = {
 export type SimulatedScanPayload = {
   technology?: string | null;
   card_type?: string | null;
+  source?: string | null;
+  dataset?: string | null;
+  file_type?: string | null;
+  uid?: string | null;
 };
 
 const API_BASE_URL = (
@@ -119,6 +135,30 @@ export function simulateSessionScan(
 
 export function listSessionCards(sessionId: number): Promise<DetectedCard[]> {
   return apiRequest<DetectedCard[]>(`/api/v1/sessions/${sessionId}/cards`);
+}
+
+export function listSessionFindings(sessionId: number): Promise<Finding[]> {
+  return apiRequest<Finding[]>(`/api/v1/sessions/${sessionId}/findings`);
+}
+
+export function listCards(): Promise<DetectedCard[]> {
+  return apiRequest<DetectedCard[]>("/api/v1/cards");
+}
+
+export function getCard(cardId: number): Promise<DetectedCard> {
+  return apiRequest<DetectedCard>(`/api/v1/cards/${cardId}`);
+}
+
+export function listCardFindings(cardId: number): Promise<Finding[]> {
+  return apiRequest<Finding[]>(`/api/v1/cards/${cardId}/findings`);
+}
+
+export function listFindings(): Promise<Finding[]> {
+  return apiRequest<Finding[]>("/api/v1/findings");
+}
+
+export function getFinding(findingId: number): Promise<Finding> {
+  return apiRequest<Finding>(`/api/v1/findings/${findingId}`);
 }
 
 export function deleteSession(sessionId: number): Promise<void> {

@@ -23,6 +23,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REPORTS_DIR: ${REPORTS_DIR}
       MOCK_DATA_DIR: ${MOCK_DATA_DIR}
+      SIMULATOR_CARD_FILE: ${SIMULATOR_CARD_FILE}
       APP_MODE: ${APP_MODE}
     volumes:
       - ./backend/app:/app/app

@@ -7,6 +7,7 @@ from functools import lru_cache
 class Settings:
     database_url: str
     mock_data_dir: str
+    simulator_card_file: str
 
     @property
     def sqlalchemy_database_url(self) -> str:
@@ -23,4 +24,5 @@ def get_settings() -> Settings:
             "postgresql://pass_pac_user:pass_pac_password@localhost:5432/pass_pac",
         ),
         mock_data_dir=os.getenv("MOCK_DATA_DIR", "./mock-data"),
+        simulator_card_file=os.getenv("SIMULATOR_CARD_FILE", "sample-cards.json"),
     )

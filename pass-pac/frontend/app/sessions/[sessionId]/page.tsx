@@ -7,11 +7,12 @@ import {
   deleteSession,
   getSession,
   listSessionCards,
+  listSessionFindings,
   simulateSessionScan,
   startSession,
   stopSession,
 } from "../../../lib/api";
-import type { DetectedCard, ScanSession } from "../../../lib/api";
+import type { DetectedCard, Finding, ScanSession } from "../../../lib/api";
 
 const statusStyles: Record<string, string> = {
   created: "border-[#b7c3cc] bg-[#f4f6f7] text-[#36454f]",
@@ -31,6 +32,7 @@ const cardTypeOptions = [
   "EM4100",
   "TK4100",
   "T5577",
+  "HID Prox",
   "MIFARE Classic 1K",
   "NTAG213",
   "NTAG215",
@@ -61,8 +63,13 @@ export default function SessionDetailsPage() {
 
   const [session, setSession] = useState<ScanSession | null>(null);
   const [cards, setCards] = useState<DetectedCard[]>([]);
+  const [findings, setFindings] = useState<Finding[]>([]);
   const [technology, setTechnology] = useState("");
   const [cardType, setCardType] = useState("");
+  const [source, setSource] = useState("");
+  const [dataset, setDataset] = useState("");
+  const [fileType, setFileType] = useState("");
+  const [uidFilter, setUidFilter] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -77,12 +84,14 @@ export default function SessionDetailsPage() {
     setError(null);
     setIsLoading(true);
     try {
-      const [sessionData, cardData] = await Promise.all([
+      const [sessionData, cardData, findingData] = await Promise.all([
         getSession(sessionId),
         listSessionCards(sessionId),
+        listSessionFindings(sessionId),
       ]);
       setSession(sessionData);
       setCards(cardData);
+      setFindings(findingData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load session.");
     } finally {
@@ -127,9 +136,12 @@ export default function SessionDetailsPage() {
   }
 
   const latestCard = cards[0];
-  const highRiskCount = cards.filter((card) =>
-    ["high", "critical"].includes(card.risk_level),
+  const highRiskCount = findings.filter((finding) =>
+    ["high", "critical"].includes(finding.risk_level),
   ).length;
+  const cardLabelById = new Map(
+    cards.map((card) => [card.id, `${card.card_type} ${card.uid}`] as const),
+  );
 
   return (
     <main className="min-h-screen bg-[#f6f7f9]">
@@ -295,6 +307,50 @@ export default function SessionDetailsPage() {
                     ))}
                   </select>
                 </label>
+                <label className="mt-4 block text-sm font-medium text-[#36454f]">
+                  Source
+                  <select
+                    value={source}
+                    onChange={(event) => setSource(event.target.value)}
+                    className="mt-2 w-full rounded-md border border-[#b7c3cc] bg-white px-3 py-2 text-sm text-[#17202a] outline-none transition focus:border-[#2f6f73] focus:ring-2 focus:ring-[#cfe7e5]"
+                  >
+                    <option value="">Any</option>
+                    <option value="simulator">Simulator</option>
+                    <option value="flipper-import">Flipper import</option>
+                  </select>
+                </label>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-[#36454f]">
+                    File type
+                    <select
+                      value={fileType}
+                      onChange={(event) => setFileType(event.target.value)}
+                      className="mt-2 w-full rounded-md border border-[#b7c3cc] bg-white px-3 py-2 text-sm text-[#17202a] outline-none transition focus:border-[#2f6f73] focus:ring-2 focus:ring-[#cfe7e5]"
+                    >
+                      <option value="">Any</option>
+                      <option value="nfc">NFC</option>
+                      <option value="rfid">RFID</option>
+                    </select>
+                  </label>
+                  <label className="block text-sm font-medium text-[#36454f]">
+                    Dataset
+                    <input
+                      value={dataset}
+                      onChange={(event) => setDataset(event.target.value)}
+                      placeholder="uberguidoz-flipper"
+                      className="mt-2 w-full rounded-md border border-[#b7c3cc] bg-white px-3 py-2 text-sm text-[#17202a] outline-none transition focus:border-[#2f6f73] focus:ring-2 focus:ring-[#cfe7e5]"
+                    />
+                  </label>
+                </div>
+                <label className="mt-4 block text-sm font-medium text-[#36454f]">
+                  UID
+                  <input
+                    value={uidFilter}
+                    onChange={(event) => setUidFilter(event.target.value)}
+                    placeholder="04:A1:B2:C3:D4:E5:80"
+                    className="mt-2 w-full rounded-md border border-[#b7c3cc] bg-white px-3 py-2 text-sm text-[#17202a] outline-none transition focus:border-[#2f6f73] focus:ring-2 focus:ring-[#cfe7e5]"
+                  />
+                </label>
                 <button
                   type="button"
                   disabled={session.status !== "running" || activeAction === "scan"}
@@ -303,6 +359,10 @@ export default function SessionDetailsPage() {
                       simulateSessionScan(session.id, {
                         technology: technology || null,
                         card_type: cardType || null,
+                        source: source || null,
+                        dataset: dataset.trim() || null,
+                        file_type: fileType || null,
+                        uid: uidFilter.trim() || null,
                       }),
                     )
                   }
@@ -335,9 +395,19 @@ export default function SessionDetailsPage() {
                   <p className="text-sm font-medium text-[#52616b]">
                     Latest Card
                   </p>
-                  <p className="mt-4 truncate text-lg font-semibold text-[#17202a]">
-                    {latestCard?.card_type ?? "-"}
-                  </p>
+                  {latestCard ? (
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/cards/${latestCard.id}`)}
+                      className="mt-4 block truncate text-lg font-semibold text-[#17202a] underline-offset-4 transition hover:text-[#2f6f73] hover:underline"
+                    >
+                      {latestCard.card_type}
+                    </button>
+                  ) : (
+                    <p className="mt-4 truncate text-lg font-semibold text-[#17202a]">
+                      -
+                    </p>
+                  )}
                 </article>
               </div>
 
@@ -374,7 +444,13 @@ export default function SessionDetailsPage() {
                         cards.map((card) => (
                           <tr key={card.id}>
                             <td className="break-all px-5 py-4 font-mono text-[#17202a]">
-                              {card.uid}
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/cards/${card.id}`)}
+                                className="underline-offset-4 transition hover:text-[#2f6f73] hover:underline"
+                              >
+                                {card.uid}
+                              </button>
                             </td>
                             <td className="px-5 py-4 font-semibold text-[#17202a]">
                               {card.card_type}
@@ -400,6 +476,82 @@ export default function SessionDetailsPage() {
                             </td>
                             <td className="px-5 py-4 text-[#36454f]">
                               {formatDate(card.created_at)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-[#d8dde3] bg-white shadow-sm">
+                <div className="border-b border-[#edf0f2] p-5">
+                  <h2 className="text-lg font-semibold text-[#17202a]">
+                    Risk Findings
+                  </h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+                    <thead className="bg-[#fafbfc] text-xs uppercase text-[#52616b]">
+                      <tr>
+                        <th className="px-5 py-3 font-semibold">Finding</th>
+                        <th className="px-5 py-3 font-semibold">Risk</th>
+                        <th className="px-5 py-3 font-semibold">Card</th>
+                        <th className="px-5 py-3 font-semibold">
+                          Recommendation
+                        </th>
+                        <th className="px-5 py-3 font-semibold">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#edf0f2]">
+                      {findings.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="px-5 py-10 text-center font-medium text-[#6b7780]"
+                          >
+                            No risk findings yet
+                          </td>
+                        </tr>
+                      ) : (
+                        findings.map((finding) => (
+                          <tr key={finding.id}>
+                            <td className="px-5 py-4">
+                              <p className="font-semibold text-[#17202a]">
+                                {finding.title}
+                              </p>
+                              <p className="mt-1 max-w-xl text-[#52616b]">
+                                {finding.description}
+                              </p>
+                            </td>
+                            <td className="px-5 py-4">
+                              <span
+                                className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold capitalize ${
+                                  riskStyles[finding.risk_level] ??
+                                  "border-[#b7c3cc] bg-[#f4f6f7] text-[#36454f]"
+                                }`}
+                              >
+                                {finding.risk_level}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  router.push(`/cards/${finding.card_id}`)
+                                }
+                                className="max-w-[220px] truncate text-left font-mono text-[#17202a] underline-offset-4 transition hover:text-[#2f6f73] hover:underline"
+                              >
+                                {cardLabelById.get(finding.card_id) ??
+                                  `Card ${finding.card_id}`}
+                              </button>
+                            </td>
+                            <td className="px-5 py-4 text-[#36454f]">
+                              {finding.recommendation}
+                            </td>
+                            <td className="px-5 py-4 text-[#36454f]">
+                              {formatDate(finding.created_at)}
                             </td>
                           </tr>
                         ))
