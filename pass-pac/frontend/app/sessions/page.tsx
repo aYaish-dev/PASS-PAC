@@ -5,11 +5,13 @@ import { FormEvent, useEffect, useState } from "react";
 import {
   createSession,
   deleteSession,
+  listSessionCards,
   listSessions,
+  simulateSessionScan,
   startSession,
   stopSession,
 } from "../../lib/api";
-import type { ScanSession } from "../../lib/api";
+import type { DetectedCard, ScanSession } from "../../lib/api";
 
 const statusStyles: Record<string, string> = {
   created: "border-[#b7c3cc] bg-[#f4f6f7] text-[#36454f]",
@@ -30,6 +32,9 @@ function formatDate(value: string | null) {
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<ScanSession[]>([]);
+  const [cardsBySession, setCardsBySession] = useState<
+    Record<number, DetectedCard[]>
+  >({});
   const [sessionName, setSessionName] = useState("");
   const [description, setDescription] = useState("");
   const [mode, setMode] = useState("simulator");
@@ -44,6 +49,13 @@ export default function SessionsPage() {
     try {
       const data = await listSessions();
       setSessions(data);
+      const cardPairs = await Promise.all(
+        data.map(async (session) => {
+          const cards = await listSessionCards(session.id);
+          return [session.id, cards] as const;
+        }),
+      );
+      setCardsBySession(Object.fromEntries(cardPairs));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load sessions.");
     } finally {
@@ -86,7 +98,7 @@ export default function SessionsPage() {
 
   async function runSessionAction(
     actionKey: string,
-    action: () => Promise<ScanSession | void>,
+    action: () => Promise<ScanSession | DetectedCard | void>,
   ) {
     setActiveAction(actionKey);
     setError(null);
@@ -193,12 +205,13 @@ export default function SessionsPage() {
             ) : null}
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px] border-collapse text-left text-sm">
+              <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
                 <thead className="bg-[#fafbfc] text-xs uppercase tracking-[0.08em] text-[#52616b]">
                   <tr>
                     <th className="px-5 py-3 font-semibold">Name</th>
                     <th className="px-5 py-3 font-semibold">Mode</th>
                     <th className="px-5 py-3 font-semibold">Status</th>
+                    <th className="px-5 py-3 font-semibold">Cards</th>
                     <th className="px-5 py-3 font-semibold">Started</th>
                     <th className="px-5 py-3 font-semibold">Ended</th>
                     <th className="px-5 py-3 font-semibold">Actions</th>
@@ -208,7 +221,7 @@ export default function SessionsPage() {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="px-5 py-10 text-center font-medium text-[#6b7780]"
                       >
                         Loading sessions...
@@ -217,91 +230,140 @@ export default function SessionsPage() {
                   ) : sessions.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="px-5 py-10 text-center font-medium text-[#6b7780]"
                       >
                         No sessions yet
                       </td>
                     </tr>
                   ) : (
-                    sessions.map((session) => (
-                      <tr key={session.id} className="align-top">
-                        <td className="px-5 py-4">
-                          <div className="font-semibold text-[#17202a]">
-                            {session.session_name}
-                          </div>
-                          <div className="mt-1 max-w-72 text-[#6b7780]">
-                            {session.description || "-"}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 capitalize text-[#36454f]">
-                          {session.mode}
-                        </td>
-                        <td className="px-5 py-4">
-                          <span
-                            className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold capitalize ${
-                              statusStyles[session.status] ??
-                              "border-[#b7c3cc] bg-[#f4f6f7] text-[#36454f]"
-                            }`}
-                          >
-                            {session.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4 text-[#36454f]">
-                          {formatDate(session.started_at)}
-                        </td>
-                        <td className="px-5 py-4 text-[#36454f]">
-                          {formatDate(session.ended_at)}
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              disabled={
-                                session.status !== "created" ||
-                                activeAction === `start-${session.id}`
-                              }
-                              onClick={() =>
-                                void runSessionAction(`start-${session.id}`, () =>
-                                  startSession(session.id),
-                                )
-                              }
-                              className="rounded-md border border-[#9ac2b8] bg-[#e8f5f2] px-3 py-1.5 text-xs font-semibold text-[#1f6f61] transition hover:bg-[#d8eee9] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                    sessions.map((session) => {
+                      const sessionCards = cardsBySession[session.id] ?? [];
+                      const latestCard = sessionCards[0];
+
+                      return (
+                        <tr key={session.id} className="align-top">
+                          <td className="px-5 py-4">
+                            <Link
+                              href={`/sessions/${session.id}`}
+                              className="font-semibold text-[#17202a] underline-offset-4 transition hover:text-[#2f6f73] hover:underline"
                             >
-                              Start
-                            </button>
-                            <button
-                              type="button"
-                              disabled={
-                                session.status !== "running" ||
-                                activeAction === `stop-${session.id}`
-                              }
-                              onClick={() =>
-                                void runSessionAction(`stop-${session.id}`, () =>
-                                  stopSession(session.id),
-                                )
-                              }
-                              className="rounded-md border border-[#b8c4d6] bg-[#eef3fa] px-3 py-1.5 text-xs font-semibold text-[#315a8a] transition hover:bg-[#e1ebf8] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                              {session.session_name}
+                            </Link>
+                            <div className="mt-1 max-w-72 text-[#6b7780]">
+                              {session.description || "-"}
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 capitalize text-[#36454f]">
+                            {session.mode}
+                          </td>
+                          <td className="px-5 py-4">
+                            <span
+                              className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-semibold capitalize ${
+                                statusStyles[session.status] ??
+                                "border-[#b7c3cc] bg-[#f4f6f7] text-[#36454f]"
+                              }`}
                             >
-                              Stop
-                            </button>
-                            <button
-                              type="button"
-                              disabled={activeAction === `delete-${session.id}`}
-                              onClick={() =>
-                                void runSessionAction(
-                                  `delete-${session.id}`,
-                                  () => deleteSession(session.id),
-                                )
-                              }
-                              className="rounded-md border border-[#e6b8b8] bg-[#fff4f4] px-3 py-1.5 text-xs font-semibold text-[#9b2c2c] transition hover:bg-[#ffe8e8] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                              {session.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-[#36454f]">
+                            <div className="font-semibold text-[#17202a]">
+                              {sessionCards.length}
+                            </div>
+                            {latestCard ? (
+                              <div className="mt-1 max-w-52 text-xs text-[#6b7780]">
+                                <span className="font-medium text-[#36454f]">
+                                  {latestCard.card_type}
+                                </span>
+                                <span className="block break-all font-mono">
+                                  {latestCard.uid}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="mt-1 text-xs text-[#6b7780]">-</div>
+                            )}
+                          </td>
+                          <td className="px-5 py-4 text-[#36454f]">
+                            {formatDate(session.started_at)}
+                          </td>
+                          <td className="px-5 py-4 text-[#36454f]">
+                            {formatDate(session.ended_at)}
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled={
+                                  session.status !== "created" ||
+                                  activeAction === `start-${session.id}`
+                                }
+                                onClick={() =>
+                                  void runSessionAction(
+                                    `start-${session.id}`,
+                                    () => startSession(session.id),
+                                  )
+                                }
+                                className="rounded-md border border-[#9ac2b8] bg-[#e8f5f2] px-3 py-1.5 text-xs font-semibold text-[#1f6f61] transition hover:bg-[#d8eee9] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                              >
+                                Start
+                              </button>
+                              <button
+                                type="button"
+                                disabled={
+                                  session.status !== "running" ||
+                                  activeAction === `scan-${session.id}`
+                                }
+                                onClick={() =>
+                                  void runSessionAction(
+                                    `scan-${session.id}`,
+                                    () => simulateSessionScan(session.id),
+                                  )
+                                }
+                                className="rounded-md border border-[#d7c56d] bg-[#fff8dc] px-3 py-1.5 text-xs font-semibold text-[#6d5a12] transition hover:bg-[#fff2b8] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                              >
+                                Scan
+                              </button>
+                              <Link
+                                href={`/sessions/${session.id}`}
+                                className="rounded-md border border-[#b7c3cc] bg-white px-3 py-1.5 text-xs font-semibold text-[#36454f] transition hover:bg-[#f0f3f5]"
+                              >
+                                Open
+                              </Link>
+                              <button
+                                type="button"
+                                disabled={
+                                  session.status !== "running" ||
+                                  activeAction === `stop-${session.id}`
+                                }
+                                onClick={() =>
+                                  void runSessionAction(
+                                    `stop-${session.id}`,
+                                    () => stopSession(session.id),
+                                  )
+                                }
+                                className="rounded-md border border-[#b8c4d6] bg-[#eef3fa] px-3 py-1.5 text-xs font-semibold text-[#315a8a] transition hover:bg-[#e1ebf8] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                              >
+                                Stop
+                              </button>
+                              <button
+                                type="button"
+                                disabled={activeAction === `delete-${session.id}`}
+                                onClick={() =>
+                                  void runSessionAction(
+                                    `delete-${session.id}`,
+                                    () => deleteSession(session.id),
+                                  )
+                                }
+                                className="rounded-md border border-[#e6b8b8] bg-[#fff4f4] px-3 py-1.5 text-xs font-semibold text-[#9b2c2c] transition hover:bg-[#ffe8e8] disabled:cursor-not-allowed disabled:border-[#d5dddc] disabled:bg-[#f4f6f7] disabled:text-[#9aa5ab]"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>

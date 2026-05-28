@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.detected_card import DetectedCard
 
 
 class ScanSession(Base):
@@ -27,4 +33,8 @@ class ScanSession(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+    detected_cards: Mapped[list[DetectedCard]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
     )

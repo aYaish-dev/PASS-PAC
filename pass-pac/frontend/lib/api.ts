@@ -11,11 +11,30 @@ export type ScanSession = {
   updated_at: string;
 };
 
+export type DetectedCard = {
+  id: number;
+  session_id: number;
+  technology: string;
+  frequency: string;
+  card_type: string;
+  protocol: string;
+  uid: string;
+  risk_level: string;
+  normalized_data_json: Record<string, unknown>;
+  raw_output_json: Record<string, unknown>;
+  created_at: string;
+};
+
 export type SessionCreatePayload = {
   session_name: string;
   description?: string | null;
   mode?: string;
   environment?: string;
+};
+
+export type SimulatedScanPayload = {
+  technology?: string | null;
+  card_type?: string | null;
 };
 
 const API_BASE_URL = (
@@ -60,6 +79,10 @@ export function listSessions(): Promise<ScanSession[]> {
   return apiRequest<ScanSession[]>("/api/v1/sessions");
 }
 
+export function getSession(sessionId: number): Promise<ScanSession> {
+  return apiRequest<ScanSession>(`/api/v1/sessions/${sessionId}`);
+}
+
 export function createSession(
   payload: SessionCreatePayload,
 ): Promise<ScanSession> {
@@ -79,6 +102,23 @@ export function stopSession(sessionId: number): Promise<ScanSession> {
   return apiRequest<ScanSession>(`/api/v1/sessions/${sessionId}/stop`, {
     method: "POST",
   });
+}
+
+export function simulateSessionScan(
+  sessionId: number,
+  payload: SimulatedScanPayload = {},
+): Promise<DetectedCard> {
+  return apiRequest<DetectedCard>(
+    `/api/v1/sessions/${sessionId}/scan/simulate`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function listSessionCards(sessionId: number): Promise<DetectedCard[]> {
+  return apiRequest<DetectedCard[]>(`/api/v1/sessions/${sessionId}/cards`);
 }
 
 export function deleteSession(sessionId: number): Promise<void> {

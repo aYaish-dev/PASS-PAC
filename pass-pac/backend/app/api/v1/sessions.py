@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, Response, status
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.schemas.card import CardResponse, SimulatedScanRequest
 from app.schemas.session import SessionCreate, SessionResponse, SessionUpdate
+from app.services.card_service import list_session_cards, run_simulated_scan
 from app.services.session_service import (
     create_session,
     delete_session,
@@ -57,6 +61,27 @@ def stop_existing_session(
     db: Session = Depends(get_db),
 ) -> SessionResponse:
     return stop_session(db, session_id)
+
+
+@router.post(
+    "/{session_id}/scan/simulate",
+    response_model=CardResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def simulate_scan_for_session(
+    session_id: int,
+    payload: Annotated[SimulatedScanRequest | None, Body()] = None,
+    db: Session = Depends(get_db),
+) -> CardResponse:
+    return run_simulated_scan(db, session_id, payload)
+
+
+@router.get("/{session_id}/cards", response_model=list[CardResponse])
+def read_session_cards(
+    session_id: int,
+    db: Session = Depends(get_db),
+) -> list[CardResponse]:
+    return list_session_cards(db, session_id)
 
 
 @router.delete("/{session_id}", status_code=status.HTTP_204_NO_CONTENT)

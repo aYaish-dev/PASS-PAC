@@ -6,6 +6,7 @@ from functools import lru_cache
 @dataclass(frozen=True)
 class Settings:
     database_url: str
+    mock_data_dir: str
 
     @property
     def sqlalchemy_database_url(self) -> str:
@@ -20,5 +21,6 @@ def get_settings() -> Settings:
         database_url=os.getenv(
             "DATABASE_URL",
             "postgresql://pass_pac_user:pass_pac_password@localhost:5432/pass_pac",
-        )
+        ),
+        mock_data_dir=os.getenv("MOCK_DATA_DIR", "./mock-data"),
     )
