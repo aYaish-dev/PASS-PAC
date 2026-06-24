@@ -1,21 +1,6 @@
 
-Conversation with Gemini
-convert this to a readme for github
-
-Your Markdown (README.md) file is ready:
-MD icon
-README
- MD 
-Open
-
-I have converted the graduation project proposal into a comprehensive README.md formatted specifically for a GitHub repository.
-
-Here is a brief summary of the information included in the repository documentation based on the provided PDF:
-
-
 Project Details: The project is from the School of Engineering and Natural Sciences at Istanbul Medipol University. It is being developed by team members Maria Riham Boukerou and Abdallah I.F. Yaish, under the supervision of advisor Malik Geylani.  
-PDF
-+ 2
+
 
 
 Core Concept: The PASS-PAC (Portable Physical Access Security Assessment Platform) is designed for the authorized testing of RFID and NFC cards.  
@@ -23,23 +8,17 @@ PDF
 
 
 Workflow: The system integrates hardware and software to capture credentials, identify protocols, perform vulnerability analysis, and handle reporting.  
-PDF
-
 
 Target Audience: The tool aims to provide an affordable and easy-to-use alternative to existing complex tools, directly assisting security professionals and red teams with physical access penetration testing.  
-PDF
-+ 1
 
 
 
 
-Gemini is AI and can make mistakes.
+
 
 # PASS-PAC: Portable Physical Access Security Assessment Platform
 
-![Institution](https://img.shields.io/badge/Institution-Istanbul%20Medipol%20University-red)
-![Course](https://img.shields.io/badge/Course-Graduation%20Project%202025--2026-blue)
-![Status](https://img.shields.io/badge/Status-Phase%201%20(Software%20Prototype)-brightgreen)
+
 
 ## Project Overview
 **PASS-PAC** (Portable Physical Access Security Assessment Platform) is an integrated system designed for the authorized security assessment of RFID and NFC-based physical access control systems. 
@@ -81,5 +60,4 @@ The project is currently utilizing simulated datasets and publicly accessible RF
 * **Project Advisor:** Malik Geylani
 
 *School of Engineering and Natural Sciences, Istanbul Medipol University*
-README.md
-Displaying README.md.
+
