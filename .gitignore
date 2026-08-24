@@ -1,0 +1,5 @@
+# Local report-authoring workspace and private source documents
+/_work/
+/.agents/
+/*.docx
+/*.pdf

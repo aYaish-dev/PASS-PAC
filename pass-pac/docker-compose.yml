@@ -8,8 +8,9 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
+      - ./frontend/app:/app/app
+      - ./frontend/lib:/app/lib
+      - frontend_next_dev:/app/.next-dev
     depends_on:
       - backend
 
@@ -23,7 +24,12 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REPORTS_DIR: ${REPORTS_DIR}
       MOCK_DATA_DIR: ${MOCK_DATA_DIR}
+      SIMULATOR_CARD_FILE: ${SIMULATOR_CARD_FILE:-flipper-imported-cards.json}
       APP_MODE: ${APP_MODE}
+      PROXMARK_BRIDGE_URL: ${PROXMARK_BRIDGE_URL}
+      PROXMARK_CLIENT_PATH: ${PROXMARK_CLIENT_PATH}
+      PROXMARK_PORT: ${PROXMARK_PORT}
+      PROXMARK_COMMAND_TIMEOUT_SECONDS: ${PROXMARK_COMMAND_TIMEOUT_SECONDS}
     volumes:
       - ./backend/app:/app/app
       - ./reports:/app/reports
@@ -45,5 +51,5 @@ services:
       - ./database:/docker-entrypoint-initdb.d
 
 volumes:
-  frontend_node_modules:
+  frontend_next_dev:
   postgres_data:

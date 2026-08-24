@@ -1,8 +1,128 @@
 [
   {
-    "uid": "04:A1:B2:C3:D4:E5:80",
-    "type": "MIFARE Classic",
     "source": "simulator",
-    "risk": "unknown"
+    "technology": "LF RFID",
+    "frequency": "125kHz",
+    "card_type": "EM4100",
+    "protocol": "EM4100",
+    "uid": "01:23:45:67:89",
+    "risk_level": "informational",
+    "raw_output": {
+      "facility_code": "sim-12",
+      "format": "read-only-id",
+      "bit_length": 40
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative LF credential sample for simulator mode."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "LF RFID",
+    "frequency": "125kHz",
+    "card_type": "TK4100",
+    "protocol": "EM4100-compatible",
+    "uid": "10:32:54:76:98",
+    "risk_level": "informational",
+    "raw_output": {
+      "facility_code": "sim-18",
+      "format": "read-only-id",
+      "bit_length": 40
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative TK4100-compatible LF sample."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "LF RFID",
+    "frequency": "125kHz",
+    "card_type": "T5577",
+    "protocol": "Configurable LF",
+    "uid": "AA:10:40:76:2C",
+    "risk_level": "medium",
+    "raw_output": {
+      "configuration": "simulated-configurable-transponder",
+      "format": "rewritable-test-card",
+      "bit_length": 40
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative configurable LF credential for authorized review."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "HF/NFC",
+    "frequency": "13.56MHz",
+    "card_type": "MIFARE Classic 1K",
+    "protocol": "ISO14443A",
+    "uid": "04:A1:B2:C3:D4:E5:80",
+    "risk_level": "medium",
+    "raw_output": {
+      "atqa": "00 04",
+      "sak": "08",
+      "memory_size": "1K"
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative HF credential sample for policy review."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "HF/NFC",
+    "frequency": "13.56MHz",
+    "card_type": "NTAG213",
+    "protocol": "ISO14443A",
+    "uid": "04:21:42:63:84:A5:C6",
+    "risk_level": "low",
+    "raw_output": {
+      "atqa": "00 44",
+      "sak": "00",
+      "memory_size": "144 bytes"
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative NTAG213 sample."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "HF/NFC",
+    "frequency": "13.56MHz",
+    "card_type": "NTAG215",
+    "protocol": "ISO14443A",
+    "uid": "04:31:52:73:94:B5:D6",
+    "risk_level": "low",
+    "raw_output": {
+      "atqa": "00 44",
+      "sak": "00",
+      "memory_size": "504 bytes"
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative NTAG215 sample."
+    }
+  },
+  {
+    "source": "simulator",
+    "technology": "HF/NFC",
+    "frequency": "13.56MHz",
+    "card_type": "NTAG216",
+    "protocol": "ISO14443A",
+    "uid": "04:41:62:83:A4:C5:E6",
+    "risk_level": "low",
+    "raw_output": {
+      "atqa": "00 44",
+      "sak": "00",
+      "memory_size": "888 bytes"
+    },
+    "metadata": {
+      "dataset": "pass-pac-local-simulator",
+      "note": "Representative NTAG216 sample."
+    }
   }
 ]

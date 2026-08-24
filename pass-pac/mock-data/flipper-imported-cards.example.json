@@ -1,0 +1,75 @@
+[
+  {
+    "source": "flipper-import",
+    "technology": "HF/NFC",
+    "frequency": "13.56MHz",
+    "card_type": "MIFARE Classic 1K",
+    "protocol": "ISO14443A",
+    "uid": "04:A1:B2:C3:D4:E5:80",
+    "risk_level": "medium",
+    "raw_output": {
+      "device_type": "Mifare Classic",
+      "mifare_classic_type": "1K",
+      "atqa": "00 04",
+      "sak": "08",
+      "memory": {
+        "Block 0": "04 A1 B2 C3 D4 E5 80 08 00 04 00 00 00 00 00 00",
+        "Block 1": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+      }
+    },
+    "metadata": {
+      "dataset": "uberguidoz-flipper",
+      "file_type": "nfc",
+      "source_path": "NFC/example_mifare.nfc",
+      "source_file": "example_mifare.nfc",
+      "source_sha256": "e9f9b0802a70ebb33796a5097a66c799a043b5460557227f4507d0ae23d126e9"
+    },
+    "flipper": {
+      "file_type": "nfc",
+      "filetype": "Flipper NFC device",
+      "version": 4,
+      "device_type": "Mifare Classic",
+      "mifare_classic_type": "1K",
+      "uid_length_bytes": 7,
+      "atqa": "00 04",
+      "sak": "08",
+      "memory": {
+        "has_dump": true,
+        "entry_count": 2,
+        "block_count": 2,
+        "page_count": 0,
+        "estimated_bytes": 32
+      }
+    }
+  },
+  {
+    "source": "flipper-import",
+    "technology": "LF RFID",
+    "frequency": "125kHz",
+    "card_type": "EM4100",
+    "protocol": "EM4100",
+    "uid": "01:23:45:67:89",
+    "risk_level": "informational",
+    "raw_output": {
+      "key_type": "EM4100",
+      "data": "01 23 45 67 89",
+      "bit_length": "40"
+    },
+    "metadata": {
+      "dataset": "uberguidoz-flipper",
+      "file_type": "rfid",
+      "source_path": "RFID/example_em4100.rfid",
+      "source_file": "example_em4100.rfid",
+      "source_sha256": "a4998c768c6f6c9fe91a60b6b39445a0d58831a3423728d46b32a8bf446c62bd"
+    },
+    "flipper": {
+      "file_type": "rfid",
+      "filetype": "Flipper RFID key",
+      "version": 1,
+      "key_type": "EM4100",
+      "uid_length_bytes": 5,
+      "bit_length": 40,
+      "data_length_bytes": 5
+    }
+  }
+]

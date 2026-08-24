@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 .next/
+.next-dev/
+.next-verify/
 out/
 
 # Python
@@ -17,6 +19,9 @@ venv/
 # Local output
 reports/*
 !reports/.gitkeep
+tmp/
+.proxmark3/
+mock-data/live-card-observations.jsonl
 
 # OS and editor
 .DS_Store

@@ -1,0 +1,7 @@
+      Start |        End | Src | Data (! denotes parity error)                                           | CRC | Annotation
+          0 |        100 | Rdr |26'                                                                      |     | REQA
+        180 |        280 | Tag |04  00                                                                    |     |
+        400 |        520 | Rdr |93  20                                                                    |     | ANTICOLL
+        620 |        780 | Tag |04  A1  B2  C3  D4                                                       |     |
+        900 |       1100 | Rdr |93  70  04  A1  B2  C3  D4  E1  23                                      |  ok | SELECT_UID
+       1200 |       1300 | Tag |08  B6  DD                                                               |  ok |

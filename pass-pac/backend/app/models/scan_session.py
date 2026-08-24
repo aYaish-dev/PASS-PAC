@@ -1,9 +1,20 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+if TYPE_CHECKING:
+    from app.models.assessment import AssessmentRun
+    from app.models.detected_card import DetectedCard
+    from app.models.finding import Finding
+    from app.models.measurement import ExperimentBatch, MeasurementTrial
+    from app.models.operator_command import OperatorCommand
+    from app.models.transaction_trace import TransactionTrace
 
 
 class ScanSession(Base):
@@ -27,4 +38,32 @@ class ScanSession(Base):
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
+    )
+    detected_cards: Mapped[list[DetectedCard]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    findings: Mapped[list[Finding]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    assessment_runs: Mapped[list[AssessmentRun]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    operator_commands: Mapped[list[OperatorCommand]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    transaction_traces: Mapped[list[TransactionTrace]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    experiment_batches: Mapped[list[ExperimentBatch]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+    )
+    measurement_trials: Mapped[list[MeasurementTrial]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
     )
